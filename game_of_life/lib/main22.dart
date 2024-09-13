@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-void main() => runApp(GameOfLifeApp());
+void main() => runApp(const GameOfLifeApp());
 
 class GameOfLifeApp extends StatelessWidget {
   const GameOfLifeApp({super.key});
@@ -13,7 +13,7 @@ class GameOfLifeApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: GameOfLifePage(),
+      home: const GameOfLifePage(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -220,8 +220,8 @@ class GamePainter extends CustomPainter {
 
     for (int i = 0; i < board.length; i++) {
       for (int j = 0; j < board[i].length; j++) {
-        Rect rect = Rect.fromLTWH(
-            j * cellSize, i * cellSize, cellSize, cellSize);
+        Rect rect =
+            Rect.fromLTWH(j * cellSize, i * cellSize, cellSize, cellSize);
         if (board[i][j] == 1) {
           canvas.drawRect(rect, paint);
         } else {
@@ -238,14 +238,14 @@ class GamePainter extends CustomPainter {
 
     for (int i = 0; i <= board.length; i++) {
       // 수평선
-      canvas.drawLine(
-          Offset(0, i * cellSize), Offset(board[0].length * cellSize, i * cellSize), gridPaint);
+      canvas.drawLine(Offset(0, i * cellSize),
+          Offset(board[0].length * cellSize, i * cellSize), gridPaint);
     }
 
     for (int j = 0; j <= board[0].length; j++) {
       // 수직선
-      canvas.drawLine(
-          Offset(j * cellSize, 0), Offset(j * cellSize, board.length * cellSize), gridPaint);
+      canvas.drawLine(Offset(j * cellSize, 0),
+          Offset(j * cellSize, board.length * cellSize), gridPaint);
     }
   }
 
