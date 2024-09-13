@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 void main() => runApp(GameOfLifeApp());
 
 class GameOfLifeApp extends StatelessWidget {
+  const GameOfLifeApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,6 +20,8 @@ class GameOfLifeApp extends StatelessWidget {
 }
 
 class GameOfLifePage extends StatefulWidget {
+  const GameOfLifePage({super.key});
+
   @override
   _GameOfLifePageState createState() => _GameOfLifePageState();
 }
@@ -58,7 +62,7 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
   void startGame() {
     if (isRunning) return;
     isRunning = true;
-    timer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       setState(() {
         board = nextGeneration(board);
       });
@@ -143,7 +147,7 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
         }
       },
       child: CustomPaint(
-        size: Size(cols * cellSize, rows * cellSize),
+        size: const Size(cols * cellSize, rows * cellSize),
         painter: GamePainter(board, cellSize),
       ),
     );
@@ -155,17 +159,17 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
       children: [
         ElevatedButton(
           onPressed: isRunning ? null : startGame,
-          child: Text('시작'),
+          child: const Text('시작'),
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         ElevatedButton(
           onPressed: isRunning ? stopGame : null,
-          child: Text('일시정지'),
+          child: const Text('일시정지'),
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         ElevatedButton(
           onPressed: resetGame,
-          child: Text('초기화'),
+          child: const Text('초기화'),
         ),
       ],
     );
@@ -175,7 +179,7 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Conway\'s Game of Life'),
+          title: const Text('Conway\'s Game of Life'),
         ),
         body: Column(
           children: [
@@ -190,9 +194,9 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             buildControls(),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
           ],
         ));
   }
