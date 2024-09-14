@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-void main() => runApp(GameOfLifeApp());
+void main() => runApp(const GameOfLifeApp());
 
 class GameOfLifeApp extends StatelessWidget {
+  const GameOfLifeApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -11,13 +13,15 @@ class GameOfLifeApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: GameOfLifePage(),
+      home: const GameOfLifePage(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class GameOfLifePage extends StatefulWidget {
+  const GameOfLifePage({super.key});
+
   @override
   _GameOfLifePageState createState() => _GameOfLifePageState();
 }
@@ -34,6 +38,9 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
 
   Timer? timer;
   bool isRunning = false;
+
+  // GlobalKey를 추가하여 CustomPaint의 컨텍스트에 접근할 수 있게 합니다.
+  final GlobalKey _paintKey = GlobalKey();
 
   @override
   void initState() {
@@ -58,7 +65,7 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
   void startGame() {
     if (isRunning) return;
     isRunning = true;
-    timer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       setState(() {
         board = nextGeneration(board);
       });
@@ -134,17 +141,28 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
   Widget buildGrid() {
     return GestureDetector(
       onTapUp: (details) {
-        RenderBox box = context.findRenderObject() as RenderBox;
-        Offset localPosition = box.globalToLocal(details.globalPosition);
-        int col = (localPosition.dx / cellSize).floor();
-        int row = (localPosition.dy / cellSize).floor();
-        if (row >= 0 && row < rows && col >= 0 && col < cols) {
-          toggleCell(row, col);
+        // CustomPaint의 위치를 기준으로 로컬 좌표를 계산합니다.
+        RenderBox? box =
+            _paintKey.currentContext?.findRenderObject() as RenderBox?;
+        if (box != null) {
+          Offset localPosition = box.globalToLocal(details.globalPosition);
+          int col = (localPosition.dx / cellSize).floor();
+          int row = (localPosition.dy / cellSize).floor();
+          if (row >= 0 && row < rows && col >= 0 && col < cols) {
+            toggleCell(row, col);
+          }
         }
       },
-      child: CustomPaint(
-        size: Size(cols * cellSize, rows * cellSize),
-        painter: GamePainter(board, cellSize),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: CustomPaint(
+            key: _paintKey, // GlobalKey 할당
+            size: const Size(cols * cellSize, rows * cellSize),
+            painter: GamePainter(board, cellSize),
+          ),
+        ),
       ),
     );
   }
@@ -155,17 +173,17 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
       children: [
         ElevatedButton(
           onPressed: isRunning ? null : startGame,
-          child: Text('시작'),
+          child: const Text('시작'),
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         ElevatedButton(
           onPressed: isRunning ? stopGame : null,
-          child: Text('일시정지'),
+          child: const Text('일시정지'),
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         ElevatedButton(
           onPressed: resetGame,
-          child: Text('초기화'),
+          child: const Text('초기화'),
         ),
       ],
     );
@@ -175,24 +193,18 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Conway\'s Game of Life'),
+          title: const Text('Conway\'s Game of Life'),
         ),
         body: Column(
           children: [
             Expanded(
               child: Center(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: buildGrid(),
-                  ),
-                ),
+                child: buildGrid(),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             buildControls(),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
           ],
         ));
   }
@@ -216,8 +228,8 @@ class GamePainter extends CustomPainter {
 
     for (int i = 0; i < board.length; i++) {
       for (int j = 0; j < board[i].length; j++) {
-        Rect rect = Rect.fromLTWH(
-            j * cellSize, i * cellSize, cellSize, cellSize);
+        Rect rect =
+            Rect.fromLTWH(j * cellSize, i * cellSize, cellSize, cellSize);
         if (board[i][j] == 1) {
           canvas.drawRect(rect, paint);
         } else {
@@ -234,14 +246,14 @@ class GamePainter extends CustomPainter {
 
     for (int i = 0; i <= board.length; i++) {
       // 수평선
-      canvas.drawLine(
-          Offset(0, i * cellSize), Offset(board[0].length * cellSize, i * cellSize), gridPaint);
+      canvas.drawLine(Offset(0, i * cellSize),
+          Offset(board[0].length * cellSize, i * cellSize), gridPaint);
     }
 
     for (int j = 0; j <= board[0].length; j++) {
       // 수직선
-      canvas.drawLine(
-          Offset(j * cellSize, 0), Offset(j * cellSize, board.length * cellSize), gridPaint);
+      canvas.drawLine(Offset(j * cellSize, 0),
+          Offset(j * cellSize, board.length * cellSize), gridPaint);
     }
   }
 
