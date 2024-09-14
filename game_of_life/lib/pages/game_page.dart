@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../services/game_service.dart';
 import '../services/pattern_service.dart';
-import '../services/image_service.dart';
 import '../models/canvas_template.dart';
 import '../widgets/grid_painter.dart';
 import '../widgets/control_panel.dart';
@@ -103,18 +102,20 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
       context,
       MaterialPageRoute(
         builder: (context) => ImageProcessingPage(
-          onProcessed: (pattern) {
+          onProcessed: (pattern, imagePath) {
             setState(() {
               board = pattern;
             });
+            // 패턴 저장 시 imagePath 포함
+            saveCurrentPattern(imagePath);
           },
         ),
       ),
     );
   }
 
-  // 패턴 저장 메서드
-  void saveCurrentPattern() async {
+  // 패턴 저장 메서드 (이미지 경로는 선택적)
+  void saveCurrentPattern([String imagePath = '']) async {
     List<Point> liveCells = [];
     List<Point> deadCells = [];
     for (int i = 0; i < rows; i++) {
@@ -131,10 +132,6 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
     int liveCount = liveCells.length;
     int deadCount = rows * cols - liveCount;
     bool isSparse = liveCount < deadCount;
-
-    // 이미지 경로 (Draw Mode에서 그린 이미지가 있는 경우)
-    // 이 예제에서는 imagePath를 빈 문자열로 설정. 필요 시 업데이트 가능
-    String imagePath = '';
 
     // CanvasTemplate 생성
     CanvasTemplate template = CanvasTemplate(
@@ -172,8 +169,9 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
 
     if (filename != null && filename.isNotEmpty) {
       await patternService.savePattern(template, filename);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('패턴이 저장되었습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('패턴이 저장되었습니다.')),
+      );
     }
   }
 
@@ -181,8 +179,9 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
   void loadPattern() async {
     List<String> patterns = await patternService.listPatterns();
     if (patterns.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('저장된 패턴이 없습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('저장된 패턴이 없습니다.')),
+      );
       return;
     }
 
@@ -228,8 +227,9 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
             }
           }
         });
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('패턴이 로드되었습니다.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('패턴이 로드되었습니다.')),
+        );
       }
     }
   }
@@ -286,7 +286,7 @@ class _GameOfLifePageState extends State<GameOfLifePage> {
             onStart: startGame,
             onStop: stopGame,
             onReset: resetGame,
-            onSave: saveCurrentPattern,
+            onSave: () => saveCurrentPattern(),
             onLoad: loadPattern,
             onLoadImage: navigateToImageProcessing,
           ),

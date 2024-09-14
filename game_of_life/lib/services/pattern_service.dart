@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import '../models/canvas_template.dart';
-import 'package:flutter/foundation.dart';
 
 class PatternService {
   // 애플리케이션 문서 디렉토리 경로 가져오기

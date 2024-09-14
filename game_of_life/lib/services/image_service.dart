@@ -1,8 +1,32 @@
 // lib/services/image_service.dart
 
 import 'package:image/image.dart' as img;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class ImageService {
+// 이미지 저장
+  Future<String> saveImage(img.Image image, String filename) async {
+    final path = await getApplicationDocumentsDirectory();
+    final file = File('${path.path}/$filename.png');
+    List<int> pngBytes = img.encodePng(image);
+    await file.writeAsBytes(pngBytes);
+    return file.path;
+  }
+
+  // 이미지 로드
+  Future<img.Image?> loadImage(String imagePath) async {
+    try {
+      final file = File(imagePath);
+      if (!await file.exists()) return null;
+      List<int> bytes = await file.readAsBytes();
+      return img.decodeImage(bytes);
+    } catch (e) {
+      print('Error loading image: $e');
+      return null;
+    }
+  }
+
   Future<img.Image> cannyEdgeFilter(
       img.Image image, double lowThreshold, double highThreshold) async {
     // 실제 Canny Edge Filter는 복잡하므로, 여기서는 Sobel 필터를 사용한 엣지 검출을 예시로 합니다.
